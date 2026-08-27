@@ -1,6 +1,7 @@
 from fastapi import FastAPI, HTTPException
 from pydantic import BaseModel
 from typing import Dict
+import os
 
 app = FastAPI(title="SecureShop API", version="0.1.0")
 
@@ -43,7 +44,13 @@ def create_order(order: OrderCreate):
     ORDERS[order_id] = new_order
     return new_order
 
-@app.get("/orders/{order_id}")
+@app.get(
+    "/orders/{order_id}",
+    responses={
+        200: {"description": "Orden encontrada con éxito"},
+        404: {"description": "Order not found"}
+    }
+)
 def get_order(order_id: int):
     order = ORDERS.get(order_id)
     if not order:
@@ -52,4 +59,6 @@ def get_order(order_id: int):
 
 if __name__ == "__main__":
     import uvicorn
-    uvicorn.run(app, host="0.0.0.0", port=8000)
+    # Solución al Blocker de SonarCloud: Evitar exponer por defecto a 0.0.0.0
+    host_ip = os.getenv("HOST", "127.0.0.1")
+    uvicorn.run(app, host=host_ip, port=8000)
