@@ -1,4 +1,4 @@
-name: CI/CD Pipeline
+name: CI/CD Pipeline with SAST (SonarCloud)
 
 on:
   push:
@@ -7,7 +7,7 @@ on:
     branches: [ main ]
 
 jobs:
-  build-and-push:
+  sast-and-build:
     runs-on: ubuntu-latest
     permissions:
       contents: read
@@ -16,6 +16,8 @@ jobs:
     steps:
       - name: Checkout code
         uses: actions/checkout@v4
+        with:
+          fetch-depth: 0
 
       - name: Set up Python
         uses: actions/setup-python@v5
@@ -27,6 +29,12 @@ jobs:
           python -m pip install --upgrade pip
           pip install pytest httpx -r requirements.txt || pip install pytest httpx
           PYTHONPATH=. pytest
+
+      - name: SonarCloud Scan (SAST)
+        uses: SonarSource/sonarcloud-github-action@master
+        env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+          SONAR_TOKEN: ${{ secrets.SONAR_TOKEN }}
 
       - name: Log in to GitHub Container Registry
         uses: docker/login-action@v3
