@@ -25,7 +25,14 @@ def get_health():
 def get_products():
     return {"products": PRODUCTS}
 
-@app.post("/orders", status_code=201)
+@app.post(
+    "/orders", 
+    status_code=201,
+    responses={
+        201: {"description": "Orden creada con éxito"},
+        404: {"description": "Product not found"}
+    }
+)
 def create_order(order: OrderCreate):
     product = next((p for p in PRODUCTS if p["id"] == order.product_id), None)
     if not product:
