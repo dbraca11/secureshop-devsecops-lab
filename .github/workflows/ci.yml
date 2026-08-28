@@ -1,4 +1,4 @@
-name: CI/CD Pipeline with SAST & SCA
+name: CI/CD Pipeline with SAST, SCA & Container Scanning
 
 on:
   push:
@@ -7,7 +7,7 @@ on:
     branches: [ main ]
 
 jobs:
-  sast-sca-and-build:
+  sast-sca-trivy-and-build:
     runs-on: ubuntu-latest
     permissions:
       contents: read
@@ -43,6 +43,20 @@ jobs:
         with:
           args: --severity-threshold=high
 
+      - name: Build Docker Image
+        run: |
+          docker build -t ghcr.io/${{ github.repository_owner }}/secureshop:${{ github.sha }} .
+
+      - name: Trivy Vulnerability Scan (Container Security)
+        uses: aquasecurity/trivy-action@v0.28.0
+        with:
+          image-ref: 'ghcr.io/${{ github.repository_owner }}/secureshop:${{ github.sha }}'
+          format: 'table'
+          exit-code: '1'
+          ignore-unfixed: true
+          vuln-type: 'os,library'
+          severity: 'CRITICAL,HIGH'
+
       - name: Log in to GitHub Container Registry
         uses: docker/login-action@v3
         with:
@@ -50,9 +64,8 @@ jobs:
           username: ${{ github.actor }}
           password: ${{ secrets.GITHUB_TOKEN }}
 
-      - name: Build and Push Docker Image
-        uses: docker/build-push-action@v5
-        with:
-          context: .
-          push: true
-          tags: ghcr.io/${{ github.repository_owner }}/secureshop:latest
+      - name: Push Docker Image to GHCR
+        run: |
+          docker tag ghcr.io/${{ github.repository_owner }}/secureshop:${{ github.sha }} ghcr.io/${{ github.repository_owner }}/secureshop:latest
+          docker push ghcr.io/${{ github.repository_owner }}/secureshop:${{ github.sha }}
+          docker push ghcr.io/${{ github.repository_owner }}/secureshop:latest
