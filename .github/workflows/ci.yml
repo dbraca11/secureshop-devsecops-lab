@@ -47,6 +47,11 @@ jobs:
         run: |
           docker build -t ghcr.io/${{ github.repository_owner }}/secureshop:${{ github.sha }} .
 
+      - name: Verify installed Python packages
+        run: |
+          docker run --rm ghcr.io/${{ github.repository_owner }}/secureshop:${{ github.sha }} \
+            python -m pip show msgpack setuptools
+
       - name: Trivy Vulnerability Scan (Container Security)
         uses: aquasecurity/trivy-action@v0.36.0
         with:
