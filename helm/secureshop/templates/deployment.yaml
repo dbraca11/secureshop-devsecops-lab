@@ -14,9 +14,19 @@ spec:
       labels:
         app: secureshop
     spec:
+      automountServiceAccountToken: false
       containers:
       - name: secureshop
         image: ghcr.io/dbraca11/secureshop:latest
         imagePullPolicy: Always
         ports:
         - containerPort: 8000
+        resources:
+          requests:
+            memory: "128Mi"
+            cpu: "100m"
+            ephemeral-storage: "100Mi"
+          limits:
+            memory: "256Mi"
+            cpu: "500m"
+            ephemeral-storage: "500Mi"
