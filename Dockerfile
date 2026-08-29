@@ -9,6 +9,7 @@ COPY requirements.txt .
 RUN pip install --no-cache-dir --upgrade pip==24.2 && \
     pip uninstall -y setuptools
 
+# Instalación estricta con bloqueo y binarios forzados para cumplir con SonarCloud
 RUN pip install --no-cache-dir --only-binary=:all: -r requirements.txt
 
 COPY app ./app
