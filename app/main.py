@@ -2,10 +2,10 @@ from fastapi import FastAPI, HTTPException, Request
 
 app = FastAPI(title="SecureShop API")
 
-# Base de datos en memoria para pruebas
 products = [
-    {"id": 1, "name": "Laptop", "price": 999.99},
-    {"id": 2, "name": "Smartphone", "price": 499.99}
+    {"id": 1, "name": "Laptop", "price": 1200.00},
+    {"id": 2, "name": "Smartphone", "price": 499.99},
+    {"id": 3, "name": "Headphones", "price": 150.00}
 ]
 orders = []
 
@@ -29,15 +29,30 @@ def health_check():
 
 @app.get("/products")
 def get_products():
-    return products
+    return {"products": products}
 
 @app.post("/orders", status_code=201)
 def create_order(order: dict):
     product_id = order.get("product_id")
+    quantity = order.get("quantity", 1)
+    
     product = next((p for p in products if p["id"] == product_id), None)
     if not product:
         raise HTTPException(status_code=404, detail="Product not found")
     
-    new_order = {"id": len(orders) + 1, "product_id": product_id, "quantity": order.get("quantity", 1)}
+    total_price = product["price"] * quantity
+    new_order = {
+        "id": len(orders) + 1, 
+        "product_id": product_id, 
+        "quantity": quantity,
+        "total_price": total_price
+    }
     orders.append(new_order)
     return new_order
+
+@app.get("/orders/{order_id}")
+def get_order(order_id: int):
+    order = next((o for o in orders if o["id"] == order_id), None)
+    if not order:
+        raise HTTPException(status_code=404, detail="Order not found")
+    return order
