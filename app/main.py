@@ -31,7 +31,7 @@ def health_check():
 def get_products():
     return {"products": products}
 
-@app.post("/orders", status_code=201)
+@app.post("/orders", status_code=201, responses={404: {"description": "Product not found"}})
 def create_order(order: dict):
     product_id = order.get("product_id")
     quantity = order.get("quantity", 1)
@@ -50,7 +50,7 @@ def create_order(order: dict):
     orders.append(new_order)
     return new_order
 
-@app.get("/orders/{order_id}")
+@app.get("/orders/{order_id}", responses={404: {"description": "Order not found"}})
 def get_order(order_id: int):
     order = next((o for o in orders if o["id"] == order_id), None)
     if not order:
