@@ -1,6 +1,13 @@
-from fastapi import FastAPI, Request
+from fastapi import FastAPI, HTTPException, Request
 
 app = FastAPI(title="SecureShop API")
+
+# Base de datos en memoria para pruebas
+products = [
+    {"id": 1, "name": "Laptop", "price": 999.99},
+    {"id": 2, "name": "Smartphone", "price": 499.99}
+]
+orders = []
 
 @app.middleware("http")
 async def add_security_headers(request: Request, call_next):
@@ -18,4 +25,19 @@ def read_root():
 
 @app.get("/health")
 def health_check():
-    return {"status": "healthy"}
+    return {"status": "healthy", "service": "secureshop-api"}
+
+@app.get("/products")
+def get_products():
+    return products
+
+@app.post("/orders", status_code=201)
+def create_order(order: dict):
+    product_id = order.get("product_id")
+    product = next((p for p in products if p["id"] == product_id), None)
+    if not product:
+        raise HTTPException(status_code=404, detail="Product not found")
+    
+    new_order = {"id": len(orders) + 1, "product_id": product_id, "quantity": order.get("quantity", 1)}
+    orders.append(new_order)
+    return new_order
