@@ -15,12 +15,10 @@ jobs:
 
     steps:
       - name: Checkout code
-        uses: actions/checkout@v4
-        with:
-          fetch-depth: 0
+        uses: actions/checkout@11bd71901bbe5b1630ceea73d27597364c9af683
 
       - name: Set up Python
-        uses: actions/setup-python@v5
+        uses: actions/setup-python@0b926109e5110ea933179fe530c00828574fe3c8
         with:
           python-version: '3.11'
 
@@ -31,13 +29,13 @@ jobs:
           PYTHONPATH=. pytest
 
       - name: SonarCloud Scan (SAST)
-        uses: SonarSource/sonarcloud-github-action@master
+        uses: SonarSource/sonarcloud-github-action@cb253f86e3314841d1ebc96b758652d2f70b925f
         env:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
           SONAR_TOKEN: ${{ secrets.SONAR_TOKEN }}
 
       - name: Snyk Security Scan (SCA)
-        uses: snyk/actions/python-3.10@master
+        uses: snyk/actions/python-3.10@b016e7925e510ed97c3fb3c6d66e5f336a7155ec
         env:
           SNYK_TOKEN: ${{ secrets.SNYK_TOKEN }}
         with:
@@ -48,7 +46,7 @@ jobs:
           docker build -t ghcr.io/${{ github.repository_owner }}/secureshop:${{ github.sha }} .
 
       - name: Trivy Vulnerability Scan (Container Security)
-        uses: aquasecurity/trivy-action@master
+        uses: aquasecurity/trivy-action@18f2510ee396bbf400402947b394d2dd8c87dbb9
         with:
           image-ref: 'ghcr.io/${{ github.repository_owner }}/secureshop:${{ github.sha }}'
           format: 'table'
@@ -58,7 +56,7 @@ jobs:
           severity: 'CRITICAL,HIGH'
 
       - name: Log in to GitHub Container Registry
-        uses: docker/login-action@v3
+        uses: docker/login-action@9780b0c442fbb1117ed29e0efdff1e18412f7567
         with:
           registry: ghcr.io
           username: ${{ github.actor }}
