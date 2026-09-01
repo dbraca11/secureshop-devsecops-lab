@@ -1,0 +1,56 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: secureshop-api
+  namespace: secureshop
+  labels:
+    app: secureshop-api
+spec:
+  replicas: 1
+  selector:
+    matchLabels:
+      app: secureshop-api
+  template:
+    metadata:
+      labels:
+        app: secureshop-api
+        role: api
+    spec:
+      serviceAccountName: secureshop-deployer
+      securityContext:
+        runAsNonRoot: true
+        runAsUser: 10001
+        fsGroup: 10001
+      containers:
+      - name: api
+        image: ghcr.io/dbraca11/secureshop-devsecops-lab:latest
+        imagePullPolicy: Always
+        ports:
+        - containerPort: 8000
+        securityContext:
+          allowPrivilegeEscalation: false
+          readOnlyRootFilesystem: true
+          capabilities:
+            drop:
+            - ALL
+        resources:
+          limits:
+            cpu: "500m"
+            memory: "512Mi"
+          requests:
+            cpu: "100m"
+            memory: "128Mi"
+---
+apiVersion: v1
+kind: Service
+metadata:
+  name: secureshop-service
+  namespace: secureshop
+spec:
+  type: ClusterIP
+  selector:
+    app: secureshop-api
+  ports:
+  - port: 80
+    targetPort: 8000
+    protocol: TCP
