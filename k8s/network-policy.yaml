@@ -1,0 +1,26 @@
+apiVersion: networking.k8s.io/v1
+kind: NetworkPolicy
+metadata:
+  name: secureshop-isolation
+  namespace: secureshop
+spec:
+  podSelector:
+    matchLabels:
+      app: secureshop-api
+  policyTypes:
+  - Ingress
+  ingress:
+  - from:
+    - namespaceSelector:
+        matchLabels:
+          kubernetes.io/metadata.name: ingress-nginx
+    ports:
+    - protocol: TCP
+      port: 8000
+  - from:
+    - podSelector:
+        matchLabels:
+          role: monitoring
+    ports:
+    - protocol: TCP
+      port: 8000
