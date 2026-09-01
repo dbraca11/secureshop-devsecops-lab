@@ -49,6 +49,12 @@ jobs:
         env:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
 
+      - name: Checkov IaC Scan
+        uses: bridgecrewio/checkov-action@master
+        continue-on-error: true
+        with:
+          framework: dockerfile,helm
+
       - name: Build Docker Image
         run: |
           docker build -t ghcr.io/${{ github.repository }}:${{ github.sha }} .
