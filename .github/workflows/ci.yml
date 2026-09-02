@@ -79,6 +79,10 @@ jobs:
   dast-zap-scan:
     needs: sast-sca-trivy-and-build
     runs-on: ubuntu-latest
+    permissions:
+      contents: read
+      issues: write
+      security-events: write
     steps:
       - name: Checkout code
         uses: actions/checkout@v3
