@@ -105,8 +105,9 @@ jobs:
           exit 1
 
       - name: ZAP Baseline Scan
-        uses: zaproxy/action-baseline@v0.9.0
+        uses: zaproxy/action-baseline@v0.15.0
         with:
           target: 'http://localhost:8080/health'
+          artifact_name: 'zap-baseline-report'
           fail_action: false
           allow_issue_writing: true
