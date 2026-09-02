@@ -89,9 +89,9 @@ jobs:
       - name: Run container locally
         run: |
           docker run -d --net=host --name secureshop-app secureshop-local:latest
-          echo "Waiting for application to start..."
+          echo "Waiting for application to start on port 8080..."
           for i in {1..15}; do
-            if curl -s http://localhost:8000/health; then
+            if curl -s http://localhost:8080/health; then
               echo "App is up!"
               exit 0
             fi
@@ -103,6 +103,6 @@ jobs:
       - name: ZAP Baseline Scan
         uses: zaproxy/action-baseline@v0.9.0
         with:
-          target: 'http://localhost:8000/health'
+          target: 'http://localhost:8080/health'
           fail_action: false
           allow_issue_writing: true
